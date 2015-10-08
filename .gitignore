@@ -7,5 +7,5 @@ LocalConfig.php
 *.php.out
 *.php.type-errors.diff
 *.php.type-errors.out
-build/
+/build/
 public/www.pid
