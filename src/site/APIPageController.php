@@ -2,12 +2,8 @@
 
 use HHVM\UserDocumentation\BuildPaths;
 use HHVM\UserDocumentation\APIIndex;
+use HHVM\UserDocumentation\APIType;
 use HHVM\UserDocumentation\HTMLFileRenderable;
-
-enum APIType: string as string {
-  classes = 'class';
-  functions = 'function';
-}
 
 final class APIPageController extends WebPageController {
   protected string $type = '';
@@ -34,28 +30,57 @@ final class APIPageController extends WebPageController {
   
   protected function getSideNav(): XHPRoot {
     $type = $this->getType();
-    $classes = APIIndex::getClasses();
-
-    $list = <ul class="navList" />;
-    foreach ($classes as $class) {
-      $url = sprintf(
+    $title = ucwords($type.' Reference');    
+    $apis = APIIndex::getReferenceForType($type);
+    $sub_list = <ul class="subList" />;
+    $parent_type_url = sprintf(
+      "/hack/reference/%s/",
+      $type,
+    );
+    
+    foreach ($apis as $api => $page) {
+      $item_url = sprintf(
         "/hack/reference/%s/%s/",
         $type,
-        $class,
+        $api,
       );
 
-      $title = ucwords(strtr($class, '-', ' '));
-
-      $list->appendChild(
-        <li>
-          <h4><a href={$url}>{$title}</a></h4>
-        </li>
-      );
+      $sub_list_item =
+        <li class="subListItem">
+          <h5><a href={$item_url}>{$api}</a></h5>
+        </li>;
+          
+      if ($this->api === $api) {
+        $sub_list_item->addClass("itemActive");
+      }
+      
+      $sub_list->appendChild($sub_list_item);
     }
     
+    $type_list = <x:frag />;
+    
+    foreach (APIType::getValues() as $api_type) {    
+      $type_url = sprintf(
+        "/hack/reference/%s/",
+        $api_type,
+      );
+      $type_title = ucwords($api_type.' Reference');    
+      if ($api_type !== $type) {
+        $type_list->appendChild(
+          <li><h4><a href={$type_url}>{$type_title}</a></h4></li>
+        );
+      }
+    }
+
     return
       <div class="navWrapper guideNav">
-        {$list}
+        <ul class="navList apiNavList">
+          <li>
+            <h4><a href={$parent_type_url}>{$title}</a></h4>
+            {$sub_list}
+          </li>
+          {$type_list}
+        </ul>
       </div>;
   }
   

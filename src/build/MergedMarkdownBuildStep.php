@@ -2,7 +2,12 @@
 
 namespace HHVM\UserDocumentation;
 
-use FredEmmott\DefinitionFinder\FileParser;
+enum APIType: string {
+  CLASS_TYPE = "class";
+  INTERFACE_TYPE = "interface";
+  TRAIT_TYPE = "trait";
+  FUNCTION_TYPE = "function";
+}
 
 final class MergedMarkdownBuildStep extends BuildStep {
   public function buildAll(): void {
@@ -17,15 +22,21 @@ final class MergedMarkdownBuildStep extends BuildStep {
       $output_path = BuildPaths::MERGED_MD.'/'.$filename.'.md'; 
       switch ($type) {
         case "function":
-          //$builder = new FunctionMarkdownBuilder($source);
-          //$builder->build();
+          $builder = new FunctionMarkdownBuilder($source);
+          file_put_contents($output_path, $builder->build());
           break;
         case "class":
+        case "interface":
+        case "trait":
           $builder = new ClassMarkdownBuilder($source);
           file_put_contents($output_path, $builder->build());
           break;
         default:
-          // Interface and Trait need MarkdownBuilders?
+          invariant(
+            APIType::isValid($type),
+            "'%s' is an unexpected API type.",
+            $type,
+          );
           break;
       }
     }

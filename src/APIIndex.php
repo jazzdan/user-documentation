@@ -4,33 +4,22 @@ namespace HHVM\UserDocumentation;
 
 class APIIndex {
   private static function getIndex(
-  ): Map<string, Map<string, Map<string, string>>> {
+  ): Map<string, Map<string, string>> {
     return require(BuildPaths::APIDOCS_INDEX);
   }
 
   public static function getProducts(): ImmVector<string> {
     return self::getIndex()->keys()->toImmVector();
   }
-
-  public static function getClasses(): ImmVector<string> {
+  
+  public static function getReferenceForType($type): Map<string, string> {
     $index = self::getIndex();
     invariant(
-      $index->containsKey('class'),
+      $index->containsKey($type),
       '%s is not in the index',
-      'class',
+      $type,
     );
-    return $index['class']->keys()->toImmVector();
-  }
-
-  public static function getFunctions(
-  ): ImmVector<string> {
-    $index = self::getIndex();
-    invariant(
-      $index->containsKey('function'),
-      '%s is not in the index',
-      'function',
-    );
-    return $index['function']->keys()->toImmVector();
+    return $index[$type];
   }
 
   public static function getFileForAPI(

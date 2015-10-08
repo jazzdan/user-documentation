@@ -1,12 +1,19 @@
 <?hh // strict
 
 use HHVM\UserDocumentation\APIIndex;
+use HHVM\UserDocumentation\APIType;
 
 enum APIProduct: string as string {
   HACK = 'hack';
 }
 
-final class APIListController extends WebPageController {
+final class APIListController extends WebPageController { 
+  public function __construct(
+    private ImmMap<string,string> $parameters,
+  ) {
+    parent::__construct($parameters);
+  }
+  
   protected async function getTitle(): Awaitable<string> {
     switch ($this->getProduct()) {
       case APIProduct::HACK:
@@ -15,23 +22,40 @@ final class APIListController extends WebPageController {
   }
   
   protected function getInnerContent(): XHPRoot {
-    $classes = APIIndex::getClasses();
+    if ($this->parameters->containsKey('type')) {
+      $api_type = $this->parameters['type'];
+      $apis = Map {
+        $api_type => APIIndex::getReferenceForType($api_type),
+      };
+    } else {
+      $apis = Map {};
+      foreach (APIType::getValues() as $api_key => $api_type) {
+        $apis[$api_type] = APIIndex::getReferenceForType($api_type);
+      }
+    }
 
-    $root = <ul class="classList" />;
-    foreach ($classes as $class) {
-      $url = sprintf(
-        "/hack/reference/class/%s/",
-        $class,
-      );
-
-      $title = ucwords(strtr($class, '-', ' '));
+    $root = <div class="referenceList" />;
+    foreach ($apis as $type => $api_references) {
+      $title = ucwords($type.' Reference');
+      $type_list = <ul class="apiList" />;
+      foreach ($api_references as $api => $reference) {
+        $url = sprintf(
+          "/hack/reference/%s/%s/",
+          $type,
+          $api,
+        );
+        $type_list->appendChild(
+          <li>
+            <h4><a href={$url}>{$api}</a></h4>
+          </li>
+        );
+      }
 
       $root->appendChild(
-        <li>
-          <h4><a href={$url}>{$title}</a></h4>
-          <div class="apiDescription">
-          </div>
-        </li>
+        <div class="referenceType">
+          <h3 class="listTitle">{$title}</h3>
+          {$type_list}
+        </div>
       );
     }
     return $root;
@@ -40,7 +64,6 @@ final class APIListController extends WebPageController {
   protected async function getBody(): Awaitable<XHPRoot> {
     return 
       <div class="apiListWrapper">
-        <h3 class="listTitle">Reference</h3>
         {$this->getInnerContent()}
       </div>;
   }
