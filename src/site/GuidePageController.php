@@ -28,6 +28,41 @@ final class GuidePageController extends WebPageController {
       </div>;
   }
   
+  protected function getBreadcrumbs(): XHPRoot {
+    $product = $this->getProduct();
+    $guide = $this->guide;
+    $product_root_url = sprintf(
+      "/%s/",
+      $product,
+    );
+    $guide_root_url = sprintf(
+      "/%s/%s/",
+      $product,
+      $guide,
+    );
+    
+    return
+      <div class="breadcrumbNav">
+        <div class="widthWrapper">
+          <span class="breadcrumbRoot">
+            <a href="/">Documentation</a>
+          </span>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbProductRoot">
+            <a href={$product_root_url}>{$product}</a>
+          </span>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbSecondaryRoot">
+            <a href={$product_root_url}>Learn</a>
+          </span>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbCurrentPage">
+            {ucwords(strtr($guide.': '.$this->page, '-', ' '))}
+          </span>
+        </div>
+      </div>;
+  }
+  
   protected function getSideNav(): XHPRoot {
     $product = $this->getProduct();
     $guides = GuidesIndex::getGuides($product);
@@ -87,7 +122,8 @@ final class GuidePageController extends WebPageController {
         $this->getRequiredStringParam('guide'),
         $this->getRequiredStringParam('page'),
       );
-      return <div>{new HTMLFileRenderable($path)}</div>;
+      return
+        <div class="innerContent">{new HTMLFileRenderable($path)}</div>;
     });
   }
 
