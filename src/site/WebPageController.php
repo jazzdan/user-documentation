@@ -1,20 +1,24 @@
 <?hh // strict
 
 abstract class WebPageController extends WebController {
+  protected string $title = '';
+  
   protected abstract function getTitle(): Awaitable<string>;
   protected abstract function getBody(): Awaitable<\XHPRoot>;
 
   final public async function respond(): Awaitable<void> {
-    list($title, $body) = await \HH\Asio\va2(
+    list($this->title, $body) = await \HH\Asio\va2(
       $this->getTitle(),
       $this->getBody(),
     );
+    
+    $body_class = 'bodyClass'.ucwords($this->getStringParam('product'));
 
     $xhp =
       <x:doctype>
         <html>
           <head>
-            <title>{$title}</title>
+            <title>{$this->title}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="shortcut icon" href="/favicon.png" />
             <link 
@@ -26,15 +30,16 @@ abstract class WebPageController extends WebController {
             <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7491092/608288/css/fonts.css" />
             <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/font-hack/2.015/css/hack-extended.min.css" />
           </head>
-          <body>
+          <body class={$body_class}>
             {$this->getHeader()}
+            {$this->getSideNav()}
             <div class="mainContainer">
+              {$this->getBreadcrumbs()}
+              {$this->getTitleContent()}
               <div class="widthWrapper flexWrapper">
                 <div class="mainWrapper">
-                  <h2 class="pageTitle">{$title}</h2>
                   {$body}
                 </div>
-                {$this->getSideNav()}
               </div>
             </div>
           </body>
@@ -44,15 +49,43 @@ abstract class WebPageController extends WebController {
     print($string);
   }
   
+  protected function getTitleContent(): XHPRoot {
+    $title_class = "mainTitle mainTitle".$this->getStringParam('product');
+    return
+      <div class={$title_class}>
+        <div class="widthWrapper">
+          <h2 class="pageTitle">{$this->title}</h2>
+        </div>
+      </div>;
+  }
+  
   protected function getSideNav(): XHPRoot {
     return <x:frag />;
   }
   
+  protected function getBreadcrumbs(): XHPRoot {
+    return <x:frag />;
+  }
+  
   protected function getHeader(): XHPRoot {
-    $header_class = "header headerType" . $this->getStringParam('product');
+    $header_class = "header headerType".$this->getStringParam('product');
     return 
       <div class={$header_class}>
         <div class="widthWrapper">
+          <div class="headerLogo hackLogo">
+            <a href="/hack/">
+              <span class="logoCSS hackLogoCSS">
+                <i class="logoPolygon a a1" />
+                <i class="logoPolygon b b1" />
+                <i class="logoPolygon b b2" />
+                <i class="logoPolygon a a3" />
+                <i class="logoPolygon b b3" />
+                <i class="logoPolygon a a4" />
+                <i class="logoPolygon b b4" />
+              </span>
+              <strong>Hack</strong>
+            </a>
+          </div>
           <div class="headerLogo hhvmLogo">
             <a href="/hhvm/">
               <span class="logoCSS hhvmLogoCSS">
@@ -65,21 +98,7 @@ abstract class WebPageController extends WebController {
                 <i class="logoPolygon a a4" />
                 <i class="logoPolygon b b4" />
               </span>
-              HHVM
-            </a>
-          </div>
-          <div class="headerLogo hackLogo">
-            <a href="/hack/">
-              <span class="logoCSS hackLogoCSS">
-                <i class="logoPolygon a a1" />
-                <i class="logoPolygon b b1" />
-                <i class="logoPolygon b b2" />
-                <i class="logoPolygon a a3" />
-                <i class="logoPolygon b b3" />
-                <i class="logoPolygon a a4" />
-                <i class="logoPolygon b b4" />
-              </span>
-              Hack
+              <strong>HHVM</strong>
             </a>
           </div>
         </div>

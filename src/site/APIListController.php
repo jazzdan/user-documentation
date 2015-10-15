@@ -67,6 +67,60 @@ final class APIListController extends WebPageController {
         {$this->getInnerContent()}
       </div>;
   }
+  
+  protected function getBreadcrumbs(): XHPRoot {
+    $product = 'hack';
+    $product_root_url = sprintf(
+      "/%s/",
+      $product,
+    );
+    $reference_root_url = sprintf(
+      "/%s/reference/",
+      $product,
+    );
+    
+    $breadcrumbs =
+      <x:frag>
+        <span class="breadcrumbRoot">
+          <a href="/">Documentation</a>
+        </span>
+        <i class="breadcrumbSeparator" />
+        <span class="breadcrumbProductRoot">
+          <a href={$product_root_url}>{$product}</a>
+        </span>
+      </x:frag>;
+      
+    if ($this->parameters->containsKey('type')) {
+      $breadcrumbs->appendChild(
+        <x:frag>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbSecondaryRoot">
+            <a href={$reference_root_url}>Reference</a>
+          </span>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbTypeRoot breadcrumbCurrentPage">
+            {$this->parameters['type']}
+          </span>
+        </x:frag>
+      );
+    } else {
+      $breadcrumbs->appendChild(
+        <x:frag>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbSecondaryRoot breadcrumbCurrentPage">
+            Reference
+          </span>
+        </x:frag>
+      );
+    }
+    
+    return 
+      <div class="breadcrumbNav">
+        <div class="widthWrapper">
+          {$breadcrumbs}
+        </div>
+      </div>;
+  }
 
   <<__Memoize>>
   private function getProduct(): APIProduct {
