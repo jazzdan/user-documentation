@@ -1,13 +1,14 @@
 <?hh // strict
 
 use HHVM\UserDocumentation\GuidesIndex;
+use HHVM\UserDocumentation\HTMLFileRenderable;
 
 enum GuideProduct: string as string {
   HHVM = 'hhvm';
   HACK = 'hack';
 }
 
-final class GuidesListController extends WebPageController {
+final class GuidesListController extends WebPageController {  
   protected async function getTitle(): Awaitable<string> {
     switch ($this->getProduct()) {
       case GuideProduct::HHVM:
@@ -37,7 +38,7 @@ final class GuidesListController extends WebPageController {
         <li>
           <h4><a href={$url}>{$title}</a></h4>
           <div class="guideDescription">
-            {file_get_contents('http://loripsum.net/api/1/veryshort/plaintext')}
+            {$this->getGuideSummary($guide)}
           </div>
         </li>
       );
@@ -64,6 +65,17 @@ final class GuidesListController extends WebPageController {
       );
     }
     return $body;
+  }
+  
+  protected function getGuideSummary(string $guide): ?XHPRoot {
+    $path = GuidesIndex::getFileForSummary(
+      $this->getRequiredStringParam('product'),
+      $guide,
+    );
+    if (file_get_contents($path)) {
+      return <x:frag>{file_get_contents($path)}</x:frag>;
+    }
+    return NULL;
   }
   
   protected function getBreadcrumbs(): XHPRoot {

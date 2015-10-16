@@ -14,7 +14,7 @@ abstract class WebPageController extends WebController {
       $this->getBody(),
     );
     
-    $body_class = 'bodyClass'.ucwords($this->getStringParam('product'));
+    $body_class = 'bodyClass'.ucwords($this->getOptionalStringParam('product'));
 
     $xhp =
       <x:doctype>
@@ -55,7 +55,8 @@ abstract class WebPageController extends WebController {
   }
   
   protected function getTitleContent(): XHPRoot {
-    $title_class = "mainTitle mainTitle".$this->getStringParam('product');
+    $title_class = 
+      "mainTitle mainTitle".$this->getOptionalStringParam('product');
     return
       <div class={$title_class}>
         <div class="widthWrapper">
@@ -73,7 +74,8 @@ abstract class WebPageController extends WebController {
   }
   
   protected function getHeader(): XHPRoot {
-    $header_class = "header headerType".$this->getStringParam('product');
+    $header_class = 
+      "header headerType".$this->getOptionalStringParam('product');
     return 
       <div class={$header_class}>
         <div class="widthWrapper">

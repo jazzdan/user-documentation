@@ -13,6 +13,7 @@ abstract final class BuildPaths {
 
   const string GUIDES_HTML = LocalConfig::BUILD_DIR.'/guides';
   const string GUIDES_INDEX = self::GUIDES_HTML.'/index.php';
+  const string GUIDES_SUMMARY = self::GUIDES_HTML.'/summary.php';
 
   const string BUILD_ID = LocalConfig::BUILD_DIR.'/build_id.txt';
 }
