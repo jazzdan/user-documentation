@@ -26,12 +26,23 @@ final class HomePageController extends WebPageController {
         <li>
           <h4><a href={$url}>{$title}</a></h4>
           <div class="guideDescription">
-            {file_get_contents('http://loripsum.net/api/1/veryshort/plaintext')}
+            {$this->getGuideSummary($product, $guide)}
           </div>
         </li>
       );
     }
     return $root;
+  }
+  
+  protected function getGuideSummary(string $product, string $guide): ?XHPRoot {
+    $path = GuidesIndex::getFileForSummary(
+      $product,
+      $guide,
+    );
+    if (file_get_contents($path)) {
+      return <x:frag>{file_get_contents($path)}</x:frag>;
+    }
+    return NULL;
   }
 
   protected async function getBody(): Awaitable<XHPRoot> {
