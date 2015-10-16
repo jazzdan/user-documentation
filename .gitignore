@@ -9,3 +9,8 @@ LocalConfig.php
 *.php.type-errors.out
 /build/
 public/www.pid
+guides/hack/99-api-examples/async-mysql-examples/async-mysql-error-result-examples/mysql_normalize_error.php
+guides/hack/99-api-examples/async-mysql-examples/async-mysql-exception-examples/failed.php
+guides/hack/99-api-examples/async-mysql-examples/async-mysql-query-error-result-examples/getSuccessfulResults.php
+composer.lock
+
