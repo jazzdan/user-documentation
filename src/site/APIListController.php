@@ -30,7 +30,7 @@ final class APIListController extends WebPageController {
     } else {
       $apis = Map {};
       foreach (APIType::getValues() as $api_key => $api_type) {
-        $apis[$api_type] = APIIndex::getReferenceForType($api_type);
+        $apis[$api_type] = APIIndex::getReferenceForType((string) $api_type);
       }
     }
 
@@ -46,7 +46,11 @@ final class APIListController extends WebPageController {
         );
         $type_list->appendChild(
           <li>
-            <h4><a href={$url}>{$api}</a></h4>
+            <h4>
+              <a href={$url}>
+                {str_replace('.', '\\', $api)}
+              </a>
+            </h4>
           </li>
         );
       }

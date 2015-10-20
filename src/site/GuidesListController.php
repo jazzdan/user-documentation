@@ -67,7 +67,7 @@ final class GuidesListController extends WebPageController {
     return $body;
   }
   
-  public function getGuideSummary(string $guide): ?XHPRoot {
+  protected function getGuideSummary(string $guide): ?XHPRoot {
     $path = GuidesIndex::getFileForSummary(
       $this->getRequiredStringParam('product'),
       $guide,

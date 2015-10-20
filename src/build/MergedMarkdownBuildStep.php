@@ -30,6 +30,8 @@ final class MergedMarkdownBuildStep extends BuildStep {
         case "trait":
           $builder = new ClassMarkdownBuilder($source);
           file_put_contents($output_path, $builder->build());
+          $method_builder = new MethodMarkdownBuilder($source);
+          $method_builder->buildAll();
           break;
         default:
           invariant(

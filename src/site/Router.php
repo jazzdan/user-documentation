@@ -15,6 +15,8 @@ class Router {
         => APIListController::class,
       '/{product:(?:hack)}/reference/{type:(?:class|function|interface|trait)}/{api}/'
         => APIPageController::class,
+      '/{product:(?:hack)}/reference/{type:(?:class|function|interface|trait)}/{api}/{method}/'
+        => APIPageController::class,
       '/{product:(?:hack|hhvm)}/{guide}/'
         => RedirectToGuideFirstPageController::class,
       '/{product:(?:hack|hhvm)}/{guide}/{page}'

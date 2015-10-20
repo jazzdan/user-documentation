@@ -8,6 +8,7 @@ use HHVM\UserDocumentation\HTMLFileRenderable;
 final class APIPageController extends WebPageController {
   protected string $type = '';
   protected string $api = '';
+  protected ?string $method;
   
   public function __construct(
     private ImmMap<string,string> $parameters,
@@ -15,10 +16,18 @@ final class APIPageController extends WebPageController {
     parent::__construct($parameters);
     $this->type = $this->getRequiredStringParam('type');
     $this->api = $this->getRequiredStringParam('api');
+    $this->method = $this->getOptionalStringParam('method');
   }
   
   protected async function getTitle(): Awaitable<string> {
-    return $this->api;
+    if ($this->method !== null) {
+      return $this->getAPIName().'::'.$this->method;
+    }
+    return $this->getAPIName();
+  }
+  
+  protected function getAPIName(): string {
+    return str_replace('.', '\\', $this->api);
   }
 
   protected async function getBody(): Awaitable<XHPRoot> {
@@ -29,7 +38,7 @@ final class APIPageController extends WebPageController {
   }
   
   protected function getSideNav(): XHPRoot {
-    $type = $this->getType();
+    $type = (string) $this->getType();
     $title = ucwords($type.' Reference');    
     $apis = APIIndex::getReferenceForType($type);
     $sub_list = <ul class="subList" />;
@@ -47,7 +56,11 @@ final class APIPageController extends WebPageController {
 
       $sub_list_item =
         <li class="subListItem">
-          <h5><a href={$item_url}>{$api}</a></h5>
+          <h5 id={$api}>
+            <a href={$item_url}>
+              {str_replace('.', '\\', $api)}
+            </a>
+          </h5>
         </li>;
           
       if ($this->api === $api) {
@@ -82,13 +95,15 @@ final class APIPageController extends WebPageController {
           {$type_list}
         </ul>
       </div>;
+    return <x:frag />;
   }
   
   protected function getInnerContent(): XHPRoot {
     return self::invariantTo404(() ==> {
       $path = APIIndex::getFileForAPI(
-        $this->getRequiredStringParam('type'),
-        $this->getRequiredStringParam('api'),
+        $this->type,
+        $this->api,
+        $this->method,
       );
       return 
         <div class="innerContent">
@@ -112,6 +127,30 @@ final class APIPageController extends WebPageController {
       $product,
       $this->type,
     );
+ 
+    if ($this->method !== null) {
+      $api_root_url = sprintf(
+        "/%s/reference/%s/%s/",
+        $product,
+        $this->type,
+        $this->api,
+      );
+      $bottom_level = 
+        <x:frag>
+          <span class="breadcrumbTertiaryRoot">
+            <a href={$api_root_url}>{$this->getAPIName()}</a>
+          </span>
+          <i class="breadcrumbSeparator" />
+          <span class="breadcrumbCurrentPage">
+            {$this->method}
+          </span>
+        </x:frag>;  
+    } else {
+      $bottom_level = 
+        <span class="breadcrumbCurrentPage">
+          {$this->getAPIName()}
+        </span>;  
+    }
     
     return
       <div class="breadcrumbNav">
@@ -132,9 +171,7 @@ final class APIPageController extends WebPageController {
             <a href={$type_root_url}>{$this->type}</a>
           </span>
           <i class="breadcrumbSeparator" />
-          <span class="breadcrumbCurrentPage">
-            {$this->api}
-          </span>
+          {$bottom_level}
         </div>
       </div>;
   }
