@@ -5,6 +5,7 @@ namespace HHVM\UserDocumentation;
 final class APIHTMLBuildStep extends BuildStep {
   const string SOURCE_ROOT = __DIR__.'/../../build/apidocs';
   const string RENDERER = __DIR__.'/../../md-render/render.rb';
+  const string METHOD_DELIM = "method";
 
   public function buildAll(): void {
     $sources = self::findSources(self::SOURCE_ROOT, Set{'md'})
@@ -48,18 +49,40 @@ final class APIHTMLBuildStep extends BuildStep {
 
   private function createIndex(
     Iterable<string> $list,
-  ): Map<string, Map<string, Map<string, string>>> {
+  ): Map<string, Map<string, Map<string, mixed>>> {
     $out = Map { };
     foreach ($list as $path) {
       $path = str_replace(BuildPaths::APIDOCS_HTML.'/', '', $path);
-      $parts = explode('.', basename($path, '.html'), 2);
-
-      list($type, $api) = $parts;
+      $base_parts = explode('.', basename($path, '.html'), 2);
       
+      list($type, $api) = $base_parts;    
       if (!$out->contains($type)) {
         $out[$type] = Map {};
+      } 
+      $api_parts = explode('.', $api);
+      
+      if (in_array(self::METHOD_DELIM, $api_parts, TRUE)) {
+        $method_sep_index = array_search(self::METHOD_DELIM, $api_parts, true);
+        $method_index = $method_sep_index + 1;
+        invariant(
+          array_key_exists($method_index, $api_parts),
+          "Method at key %s does not exist in %s filename",
+          $method_index,
+          $path,
+        );
+        $parent_api = rtrim(explode(self::METHOD_DELIM, $api)[0], ".");
+        $method = $api_parts[$method_index];
+        
+        if (!$out[$type]->contains($parent_api)) {
+          $out[$type][$parent_api] = Map {"path" => "", "methods" => Map{}};
+        }
+        $out[$type][$parent_api]["methods"][$method] = $path;
+      } else {
+        if (!$out[$type]->contains($api)) {
+          $out[$type][$api] = Map {"path" => "", "methods" => Map{}};
+        }
+        $out[$type][$api]["path"] = $path;
       }
-      $out[$type][$api] = $path;
     }
     return $out;
   }
