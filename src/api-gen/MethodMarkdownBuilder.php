@@ -13,7 +13,7 @@ class MethodMarkdownBuilder {
     $this->yaml = \Spyc::YAMLLoad($file);
   }
 
-  public function buildAll(): string {
+  public function buildAll(): void {
     foreach ($this->yaml['data']['methods'] as $method) {
       $filename = pathinfo($this->classfile)['filename'];
       $type = explode('.', $filename)[0];
@@ -21,7 +21,6 @@ class MethodMarkdownBuilder {
         BuildPaths::MERGED_MD.'/'.$filename.'.method.'.$method['name'].'.md';
       file_put_contents($output_path, $this->build($method));
     }
-    return '';
   }
 
   private function build(FunctionDocumentation $method): string {
