@@ -8,7 +8,7 @@ function hhvm_to_yaml(): void {
   (new MergedMarkdownBuildStep())->buildAll();
   (new GuidesHTMLBuildStep())->buildAll();
   (new BuildIDBuildStep())->buildAll();
-  //(new GuidesHTMLBuildStep())->buildAll();
+  (new GuidesHTMLBuildStep())->buildAll();
   (new APIHTMLBuildStep())->buildAll();
 }
 

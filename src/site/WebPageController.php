@@ -32,8 +32,16 @@ abstract class WebPageController extends WebController {
               media="screen" 
               href="http://213.168.248.29/main.css"
             />
-            <link rel="stylesheet" type="text/css" href="//cloud.typography.com/7491092/608288/css/fonts.css" />
-            <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/font-hack/2.015/css/hack-extended.min.css" />
+            <link 
+	      rel="stylesheet" 
+	      type="text/css" 
+              href="//cloud.typography.com/7491092/608288/css/fonts.css" 
+            />
+            <link 
+	     rel="stylesheet" 
+             type="text/css" 
+             href="//cdn.jsdelivr.net/font-hack/2.015/css/hack-extended.min.css"
+	    />
           </head>
           <body class={$body_class}>
             {$this->getHeader()}
